@@ -1,0 +1,11 @@
+[default]
+name = "CompassionAI"
+uri = "https://compassion-ai.org/"
+email = "contact@compassion-ai.org"
+image = "image/author/default.webp"
+
+[palni]
+name = "Palden Nyima"
+uri = "https://compassion-ai.org/"
+email = "palni@compassion-ai.org"
+image = "images/lotus.png"
