@@ -132,15 +132,20 @@ url = "/projects/"
 name = "Projects"
 weight = 1
 
+[[menu.main]]
+url = "/results/"
+name = "Results"
+weight = 2
+
 [[menu.foot]]
 url = "/projects/"
 name = "Projects"
 weight = 1
 
-# [[menu.foot]]
-# url = "/about/"
-# name = "About"
-# weight = 2
+[[menu.foot]]
+url = "/results/"
+name = "Results"
+weight = 2
 
 [[menu.foot]]
 url = "/contact/"
