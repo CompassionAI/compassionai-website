@@ -2,7 +2,6 @@
 author: palni
 title: "Evidence for Feasibility of Translation Into Chinese"
 date: 2022-08-08T21:54:29-04:00
-draft: true
 ---
 
 # Evidence for the feasibility of machine translation from Tibetan into Chinese
