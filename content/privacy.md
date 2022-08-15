@@ -4,10 +4,6 @@ title = "Privacy Policy"
 summary = "Privacy Policy."
 +++
 
-We do not track you, but we have included this here, just in case.
-
----
-
 This Privacy Policy describes how your personal information is collected, used, and shared when you visit or make a purchase from {{< param "brand.domain" >}} (the "Site").
 
 ## Personal Information We Collect
