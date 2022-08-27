@@ -4,7 +4,6 @@ weight = 4
 
 ---
 
-## Our latest results
+# Our latest results
 
-[Test translations](https://compassionai.s3.amazonaws.com/public/results.zip)<br>
-Part-of-speech tags: coming soon
+The latest outputs of our so-far best models are [here](/results/current-sota/).
