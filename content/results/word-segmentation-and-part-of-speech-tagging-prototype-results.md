@@ -47,7 +47,7 @@ We have had to modify their reported performance numbers slightly to make them c
 |                              | Test data | Training data |
 |------------------------------|----------:|--------------:|
 | _Split fraction_             |       10% |           90% |
-| _# examples_                 |    28,167 |         3,129 |
+| _# examples_                 |     3,129 |        28,167 |
 | _# unique words_             |     5,703 |        20,628 |
 | _# words not in other split_ |     1,261 |        16,186 |
 
