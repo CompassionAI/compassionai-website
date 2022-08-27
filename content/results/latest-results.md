@@ -1,7 +1,7 @@
 ---
 author: palni
 title: "Our latest results"
-date: 2022-08-08T21:54:29-04:00
+date: 2022-08-26T21:36:02-04:00
 ---
 
 # Outputs from our so-far best models
