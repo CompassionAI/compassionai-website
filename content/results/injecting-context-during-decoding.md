@@ -159,10 +159,12 @@ See the training curves in the figure below.
 
 The color scheme is:
 
-- <span style="color:#ff8461">&#x25A9;</span>: No context injection but with two [BOS] tokens
-- <span style="color:#087bbd">&#x25A9;</span>: FrozenEmbeddingsWithTwoLayers
-- <span style="color:#cc320d">&#x25A9;</span>: DenseFeatureTransformer
-- <span style="color:#009b8a">&#x25A9;</span>: BartEncoderLayerOnTop
+- <span style="color:#ff7043">&#x25A9;</span>: No context injection but with two [BOS] tokens
+- <span style="color:#f1538c">&#x25A9;</span>: FullBartEncoder
+- <span style="color:#ce3d1c">&#x25A9;</span>: FrozenEmbeddingsWithTwoLayers
+- <span style="color:#009988">&#x25A9;</span>: BartEncoderFirstLayerOnly
+- <span style="color:#0077bb">&#x25A9;</span>: DenseFeatureTransformer
+- <span style="color:#44c1ef">&#x25A9;</span>: BartEncoderLayerOnTop
 
 ## Results
 
