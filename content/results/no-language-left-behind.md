@@ -7,6 +7,8 @@ draft: true
 
 # No Language Left Behind
 
+## What is NLLB?
+
 In July 2022, FAIR (Facebook AI Research) released a large multilingual transformer model that they call No Language Left Behind, or NLLB for short. This model builds on the work the FAIR team did for their submissions to the WMT machine translation competitions to train a state-of-the-art crosslingual model for 200 languages. The training protocol combines the best practices that FAIR uncovered in the last 5 years to produce a model that yields >30 BLEU for almost all the low resource languages included in it. One of these languages is standard Tibetan.
 
 For more detail, see FAIR's blog post on NLLB at <https://ai.facebook.com/blog/nllb-200-high-quality-machine-translation/> as well as their paper at <https://arxiv.org/abs/2207.04672>.
