@@ -45,7 +45,7 @@ The NLLB model is a standard encoder-decoder stack. We would like to preserve th
 
  - Olive-cormorant uses the olive-big tokenizer. This tokenizer is guaranteed to have no UNKs on Tibetan text. The NLLB tokenizer has ~3% UNK rate on the Kangyur and Tengyur; this is not huge but it is not zero.
  - We pre-trained olive-cormorant on the Kangyur and Tengyur, this encoder may be more in-domain.
- - Olive-cormorant is based on AlBERT, thus it has substantially fewer parameters than the NLLB encoder and is much faster and more memory efficient in inference.
+ - Olive-cormorant is based on AlBERT, thus it has substantially fewer parameters than the NLLB encoder (~101 million) and is much faster and more memory efficient in inference.
 
 With this in mind, we compare three models:
 
@@ -55,17 +55,43 @@ With this in mind, we compare three models:
 
 ### Without pooled context injection
 
-We begin with a direct comparison of the encoder-decoder stacks without any context injection. The training curves are in figure EUG!!!, while table EUG!!! contains the minimum validation cross-entropy and corresponding step number.
+We begin with a direct comparison of the encoder-decoder stacks without any context injection. The training curves are in figure 1.
 
-As we can see, the gain from the NLLB decoder is large, while the gain from the NLLB encoder is significantly smaller. Note that this result is generally consistent with prior experience of people working with encoder-decoder models. This result also begs the question of what the difference between olive-cormorant-NLLB and NLLB is on test translations when evaluated by a human. We will investigate this question after comparing the models with context injection.
+{{< figure src="/images/results/no-language-left-behind/comparison_of_encoder_decoder_stacks-_cross-entropy.png" title="Figure 1: Training curves for three models without context injection - validation cross-entropy" captionclass="text-sm text-center text-raven-500">}}
+
+- <span style="color:#963ae7">&#x25A9;</span> Olive-cormorant-BART
+- <span style="color:#425066">&#x25A9;</span> Olive-cormorant-NLLB
+- <span style="color:#e52592">&#x25A9;</span> NLLB
+
+As we can see, the gain from the NLLB decoder is large, while the gain from the NLLB encoder is smaller. Note that this result is generally consistent with prior experience of people working with encoder-decoder models. This result also begs the question of what the difference between olive-cormorant-NLLB and NLLB is on test translations when evaluated by a human. We will investigate this question after comparing the models with context injection.
 
 ### With pooled context injection
 
-We use our champion context injection methodology - BART-base context encoding with an additional attention layer on top, followed by BOS token pooling and injection into a second language identification token embedding in the decoder, see [our earlier work on context injection]({{< ref "results/injecting-context-during-decoding.md" >}}). The training curves are in figure EUG!!!, while table EUG!!! contains the minimum validation cross-entropy and corresponding step number.
+We use our champion context injection methodology - BART-base context encoding with an additional attention layer on top, followed by BOS token pooling and injection into a second language identification token embedding in the decoder, see [our earlier work on context injection]({{< ref "results/injecting-context-during-decoding.md" >}}). The training curves are in figure 2.
 
-We see a similar pattern to what we observed without context injection. Interestingly, and fortunately, the gain from context injection relative to BART is preserved relative to both versions of NLLB. This is likely due to the high ambiguity of many of the Tibetan examples.
+{{< figure src="/images/results/no-language-left-behind/comparison_of_encoder_decoder_stacks_with_context-_cross-entropy.png" title="Figure 2: Training curves for three models with context injection - validation cross-entropy" captionclass="text-sm text-center text-raven-500">}}
+
+- <span style="color:#9334e6">&#x25A9;</span> Olive-cormorant-BART, no context
+- <span style="color:#f9ab00">&#x25A9;</span> Olive-cormorant-BART, with context
+- <span style="color:#e97c1e">&#x25A9;</span> Olive-cormorant-NLLB, with context
+- <span style="color:#1ab7cd">&#x25A9;</span> NLLB, with context
+
+In figure 3 we compare the performance of the two NLLB models with and without context injection.
+
+{{< figure src="/images/results/no-language-left-behind/comparison_of_nllb_with_context-_cross-entropy.png" title="Figure 3: Training curves for models involving NLLB with and without context injection - validation cross-entropy" captionclass="text-sm text-center text-raven-500">}}
+
+- <span style="color:#425066">&#x25A9;</span> Olive-cormorant-NLLB, no context
+- <span style="color:#ec8e3d">&#x25A9;</span> Olive-cormorant-NLLB, with context
+- <span style="color:#e63098">&#x25A9;</span> NLLB, no context
+- <span style="color:#12b5cb">&#x25A9;</span> NLLB, with context
+
+While NLLB with context has a similar minimum to Olive-cormorant-NLLB with context, this is likely due to noise. The gain from introducing context appears to be slightly larger than the gain from the encoder. These numbers are consistent with [our earlier findings]({{< ref "results/injecting-context-during-decoding.md" >}}).
 
 ## Human evaluation
+
+### Olive-cormorant-NLLB with and without context
+
+### Olive-cormorant-NLLB versus NLLB
 
 We now translate our test document suite with olive-cormorant-NLLB and NLLB, both trained with context injection, and visually inspect the results.
 
