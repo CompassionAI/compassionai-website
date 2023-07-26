@@ -71,9 +71,21 @@ One relatively obvious approach is to use explainability techniques to extract a
 - [Attention Weights in Transformer NMT Fail Aligning Words Between Sequences but Largely Explain Model Predictions](https://arxiv.org/abs/2109.05853),
 - [On The Alignment Problem In Multi-Head Attention-Based Neural Machine Translation](https://aclanthology.org/W18-6318.pdf).
 
-While somewhat interesting, the performance of these methods is generally poor, and the latter method relies on modifying the architecture of the causal model. In the hope of improving on these results, we attempted to use [integrated gradients](https://arxiv.org/abs/1703.01365) (implemented in [Captum](https://captum.ai/)) to explain the prediction of the next token in the translation by the causal model. We were hoping to see clear alignment, at least for some tokens, but were disappointed in the results.
+While somewhat interesting, the performance of these methods is generally poor, and the latter method relies on modifying the architecture of the causal model. In the hope of improving on these results, we attempted to use [integrated gradients](https://arxiv.org/abs/1703.01365) (implemented in [Captum](https://captum.ai/)) to explain the prediction of the next token in the translation by the causal model. We were hoping to see clear alignment, at least for some tokens, but were disappointed in the results, see below.
 
-EUG!!! SHOW SCREENSHOTS FROM THE JUPYTER NOTEBOOK
+![Figure: Integrated Gradients attributions for causal model predictions](/images/results/mining-folios-for-parallel-sentences/sample-IG-causal-model-alignments.png)
+
+{{% caption %}}
+Figure: Integrated Gradients attributions for causal model predictions.
+{{% /caption %}}
+
+While there are signs of alignment, the signal does not appear clear enough to rely on even for word-level alignment. We even tried fine-tuning a mask substitution model that's guided with part-of-speech tags and using integrated gradients on its prediction. The results were even worse, see the figure below. Most of the signal is attributed to the first and last tokens, and the intermediate tokens do not appear to have any useful accumulation of attribution mass.
+
+![Figure: Integrated Gradients attributions for mask substitution, guided with part-of-speech](/images/results/mining-folios-for-parallel-sentences/guided-mask-substitution-IG-attributions.png)
+
+{{% caption %}}
+Figure: Integrated Gradients attributions for mask substitution, guided with part-of-speech.
+{{% /caption %}}
 
 There may be many reasons for this poor performance, especially our choice of SentencePiece as a tokenization strategy for Tibetan. We do intend to eventually revisit our tokenization in order to produce a Tibetan transformer model that operates on syntactic structures that allow for solving tasks such as word segmentation and part-of-speech tagging more effectively than olive-cormorant can. However, this is still only word-level (token-level) alignment, and looking at the results here we see no reason to expect that we will get adequate results just from changing the tokenizer.
 
@@ -87,8 +99,6 @@ Source | Target | Score
 །གཟུགས་སྟོང་པའོ། །སྟོང་པ་ཉིད་ཀྱང་གཟུགས་སོ། | thus did i hear at one time | 0.13
 
 But in fact we already have such a function - it is the training loss of our causal translation model! The score is the cross-entropy of the model logits, conditioned on the source sentence, and the target sentence. This score is not naturally normalized to be in [0, 1] but this is of no importance (it can be renormalized by interpreting it as a beam probability, if needed).
-
-EUG!!! SHOW SOME EXAMPLES
 
 As an aside, another tempting avenue of approach is to try to use a model that embeds Tibetan and English sentences into the same latent space and use something like cosine similarity in this latent space as our test score. In our experience, this does not perform well without some sort of fine-tuning process to align the bilingual latent space. While this is, in principle, possible, it is not clear why we would prefer this method to simply using the loss function of our causal translation model. After all, this loss function is explicitly trained to solve the alignment testing problem.
 
@@ -110,6 +120,13 @@ This naive algorithm has a number of problems:
 
 To address the last two issues, we modify the naive algorithm as follows. Assume we have a candidate set of Tibetan sections and English sentences, as well as a score for each pair in these candidate sets. This can be represented by a complete weighted bipartite graph whose vertices are Tibetan and English sentences and whose weights are the scores. We are looking for a matching on this bipartite graph the maximizes the sum of the weights. While there are many algorithms for solving this problem, we start with a simple greedy approach - we find the largest score in our current bipartite graph, add it to our matching, and then remove all the English sentences whose locations in the folio overlap with our chosen candidate. This exploits additional structure in our data beyond the bipartite matching problem, as well as ensuring the least duplication among the English.
 
+Some examples of this strategy are shown below.
+
+Tibetan | Olive-cormorant-NLLB translation | Match 1 | Score 1 | Match 2 | Score 2 | Match 3 | Score 3
+-|-|-|-|-|-|-|-
+སངས་རྒྱས་ཀྱི་ཞིང་བརྒྱ་ཕྲག་རྣམས་དང་། གང་གཱའི་ཀླུང་གི་བྱེ་མ་དང་མཉམ་པའི་ཞིང་དུ་རྒྱལ་པོར་འགྱུར་རོ། | one will become a king in hundreds of buddha realms and as many realms as there are grains of sand in the ganges | he will become king in hundreds of thousands of buddha fields. | -1.753 | he will become king in hundreds of thousands of buddha fields. equal in number to the grains of sand in the Gaṅgā river. He will also become the king of the devas and their heavenly hosts. | -3.334 | he will join the same family as the bodhisattvas and will perform the function of a king in every respect. Using the family vidyā. he will become king in hundreds of thousands of buddha fields. | -3.554
+།ཆོས་ནི་གང་དུ་ཡང་འོང་བ་མེད། གང་དུ་ཡང་འགྲོ་བ་མེད་དེ། | phenomena do not come from anywhere, and they do not go anywhere. | they will understand that all three realms are nonexistent and unreal. | -2.635 | their lives will also be exhausted. | -2.981 | they will directly understand what is true. Knowing that all phenomena that arise are phenomena that cease. they will understand that all three realms are nonexistent and unreal. | -3.525
+
 Unfortunately, the resulting algorithm is still far too computationally intensive. This method also still produces too many spurious matches, while the greedy matching approach causes errors made by the alignment test functions to compound and occasionally poison our final results. To solve this issue, we apply a number of heuristics that rely on the meticulous structure of the 84,000 translation process:
 
 - The count of base English segments should be equal to the number of preceding Tibetan sections (not segments), fudged +/- by a location fudge of 5.
@@ -118,7 +135,32 @@ Unfortunately, the resulting algorithm is still far too computationally intensiv
 
 The location and width fudges were chosen by manual tuning of the results. The syllable count ratio multipliers of 0.9 and 2.2 were chosen by examining the dataset of parallel sentences:
 
-EUG!!! SHOW RESULTS FROM JUPYTER NOTEBOOK
+Statistic | Value
+-|-
+mean | 1.416946
+std | 0.580921
+min | 0.103448
+10% | 0.892857
+20% | 1.000000
+30% | 1.125000
+40% | 1.214286
+50% | 1.307692
+60% | 1.416667
+70% | 1.555556
+80% | 1.750000
+90% | 2.000000
+100% | 33.000000
+max | 33.000000
+
+{{% caption %}}
+Table: Descriptive statistics of the ratio of Tibetan tshegs to English words in the 84,000 parallel sentences dataset.
+{{% /caption %}}
+
+![Figure: Scatter plot of tsheg counts versus word counts in the 84,000 parallel sentences dataset](/images/results/mining-folios-for-parallel-sentences/tshegs-to-spaces.png)
+
+{{% caption %}}
+Figure: Scatter plot of tsheg counts versus word counts in the 84,000 parallel sentences dataset.
+{{% /caption %}}
 
 ## Results
 
